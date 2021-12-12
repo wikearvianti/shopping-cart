@@ -38,7 +38,6 @@ export const addShipping = () => {
   // Add code here
  return{
   type: ADD_SHIPPING,
-  payload: id
 }
  }
 
@@ -46,6 +45,5 @@ export const substractShipping = () => {
   // Add code here
   return{
     type: SUB_SHIPPING,
-    payload: id
   }
 }

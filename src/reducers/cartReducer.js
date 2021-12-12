@@ -24,92 +24,92 @@ const cartReducer = (state = initState, action) => {
 
   //INSIDE HOME COMPONENT
   if (action.type === ADD_TO_CART) {
-    // Add code here
-   // const id = action.payload;
-    //const found = state.items.find((item)) => item,id === id)
-    //const copyFound = {... found}
-    //const addedItems = state.addedItems.map(item => ({...item}));
-    //addedItems.push(copyFound);
-    //return{
-    //  ...state,
-    //  addedItems: addedItems
-    //}
-      
-    //}
-  }
-  if (action.type === REMOVE_ITEM) {
-    const nextState = produce(state, (draft) => {
-      const id = action.payload;
-      const found = draft.items.find(item => item.id === id);
-      if(draft.addedItems.length > 0){
-        const addedItem = draft.addedItems.findIndex(item => item.id === id);
-        if(addedItem !== -1){
-          draft.addedItems[addedItem].quantity += 1;
-        } else{
-          draft.addedItems.push({...found, quantity: 1});
-        }
-      } else {
-        draft.addedItems.push({...found, quantity: 1});
+    let addedItem = state.items.find(item => item.id === action.id)
+    let existed_item = state.addedItems.find(item => action.id === item.id)
+    if (existed_item) {
+      addedItem.quantity += 1
+      return {
+        ...state,
+        total: state.total + addedItem.price
       }
-      draft.total += found.price;
-    })
-    return nextState;
+    }
+    else {
+      addedItem.quantity = 1;
+      let newTotal = state.total + addedItem.price
+
+      return {
+        ...state,
+        addedItems: [...state.addedItems, addedItem],
+        total: newTotal
+      }
+    }
   }
   if (action.type === REMOVE_ITEM) {
     // Add code here
-    const nextState = produce(state, (draft) => {
-      const id = action.payload;
-      const found = draft.addedItems.findIndex(item => item.id === id);
-      const item = draft.items.find(item => item.id === id);
-      draft.total -= draft.addedItems[found].quantity * item.price
-      draft.addedItems.splice(found, 1);
-    })
-    return nextState;
+    let itemToRemove = state.addedItems.find(item => action.id === item.id)
+    let new_items = state.addedItems.filter(item => action.id !== item.id)
+
+    let newTotal = state.total - (itemToRemove.price * itemToRemove.quantity)
+    console.log(itemToRemove)
+    return {
+      ...state,
+      addedItems: new_items,
+      total: newTotal
+    }
   }
-  }
+
   //INSIDE CART COMPONENT
   if (action.type === ADD_QUANTITY) {
     // Add code here
-    const nextState = produce(state, (draft) => {
-      const id = action.payload;
-      const found = draft.addedItems.findIndex(item => item.id === id);
-      const item = draft.items.find(item => item.id === id);
-      draft.addedItems[found].quantity += 1;
-      draft.total += item.price
-    })
-    return nextState;
+    let addedItem = state.items.find(item => item.id === action.id)
+    addedItem.quantity += 1
+    let newTotal = state.total + addedItem.price
+    return {
+      ...state,
+      total: newTotal
+    }
   }
   if (action.type === SUB_QUANTITY) {
     // Add code here
-    const id = action.payload;
-    const found = draft.addedItems.findIndex(item => item.id === id);
-    const item = draft.items.find(item => item.id === id);
-    if(draft.addedItems[found].quantity > 1){
-      draft.addedItems[found].quantity -= 1;
-    } else{
-      draft.addedItems.splice(found, 1);
+    let addedItem = state.items.find(item => item.id === action.id)
+    if (addedItem.quantity === 1) {
+      let new_items = state.addedItems.filter(item => item.id !== action.id)
+      let newTotal = state.total - addedItem.price
+      return {
+        ...state,
+        addedItems: new_items,
+        total: newTotal
+      }
     }
-    draft.total -= item.price
+    else {
+      addedItem.quantity -= 1
+      let newTotal = state.total - addedItem.price
+      return {
+        ...state,
+        total: newTotal
+      }
+    }
   }
-  return nextState;
 
   if (action.type === ADD_SHIPPING) {
     // Add code here (OPTIONAL)
-    const nextState = produce(state, (draft) => {
-      draft.total += 6
-    })
-    return nextState;
+    return {
+      ...state,
+      total: state.total + 6
   }
+}
 
   if (action.type === SUB_SHIPPING) {
     // Add code here (OPTIONAL)
-    const nextState = produce(state, (draft) => {
-      draft.total -= 6
-    })
-    return nextState;
+    return {
+      ...state,
+      total: state.total - 6
+    }
   }
 
   else {
     return state
   }
+}
+
 export default cartReducer
